@@ -29,31 +29,62 @@ Tem um **back-end** em Java (Spring Boot) e um **front-end** em React, na mesma 
 
 ## 🚀 Como rodar
 
-Clone ou baixe o repositório e abra a pasta do projeto no terminal. Você precisa de **dois terminais**, um para o back-end e outro para o front-end.
+O projeto tem duas partes que rodam ao mesmo tempo: o **back-end** (a API em Java, que guarda e filtra os países) e o **front-end** (a tela em React, que você usa no navegador). Por isso você precisa de **dois terminais abertos**, um para cada parte.
 
 ### Pré-requisitos
 - **Java 17 ou superior** (confira com `java -version`)
 - **Node.js 18 ou superior** (confira com `node -v`). Baixe em https://nodejs.org (versão LTS).
 
-### 1. Back-end (primeiro terminal, na pasta raiz do projeto)
+### Passo a passo
+
+**1. Abra a sua IDE (por exemplo o VS Code) na pasta do projeto** e abra o terminal dela (`` Ctrl + ` ``).
+
+**2. Primeiro terminal: suba o back-end**
 
 ```powershell
 .\mvnw.cmd clean spring-boot:run
 ```
 
-Espere aparecer `Started LocalizacaointeligenteApplication` e a mensagem `Base atualizada com sucesso. Total de países: 250`.
-O back-end fica em `http://localhost:8080`.
+| Parte do comando | O que faz |
+|---|---|
+| `.\mvnw.cmd` | Maven Wrapper: roda o Maven que já vem no projeto, então você **não precisa instalar o Maven**. |
+| `clean` | Apaga a compilação anterior, para não sobrar classes antigas que causem erro. |
+| `spring-boot:run` | Compila o projeto e sobe a API (Spring Boot), já carregando os 250 países. |
 
-### 2. Front-end (segundo terminal)
+Espere aparecer `Started LocalizacaointeligenteApplication` e a mensagem `Base atualizada com sucesso. Total de países: 250`. A partir daí o back-end está no ar em `http://localhost:8080`. **Deixe esse terminal aberto.**
+
+**3. Abra um segundo terminal e vá para a pasta do front-end**
 
 ```powershell
 cd frontend
+```
+
+`cd frontend` entra na pasta `frontend`, onde está o código da tela em React.
+
+**4. Instale as dependências do front-end (só na primeira vez)**
+
+```powershell
 npm install
+```
+
+`npm install` baixa as bibliotecas que o front-end usa (React, Axios etc.) para a pasta `node_modules`. Isso só é necessário na primeira vez, ou depois de baixar o projeto de novo.
+
+**5. Suba o front-end**
+
+```powershell
 npm start
 ```
 
-O navegador abre sozinho em **http://localhost:3000**. Se não abrir, acesse esse endereço.
-O `npm install` só é necessário na primeira vez.
+`npm start` inicia o servidor de desenvolvimento do React. O navegador abre sozinho em **http://localhost:3000**; se não abrir, acesse esse endereço. **Deixe esse terminal aberto também.**
+
+**6. Pronto!** A tela da Localização Inteligente aparece no navegador. Para parar cada parte, use `Ctrl + C` no respectivo terminal.
+
+**Resumo rápido**
+
+| Terminal | Comando | Para que serve |
+|---|---|---|
+| 1 (pasta do projeto) | `.\mvnw.cmd clean spring-boot:run` | Sobe o back-end (a API) em `localhost:8080` |
+| 2 (pasta `frontend`) | `cd frontend` e depois `npm start` | Sobe o front-end (a tela) em `localhost:3000` |
 
 > ⚠️ O front chama o back-end em `localhost:8080`. Se outro programa estiver usando a porta 8080 (por exemplo outra API), feche-o antes de subir o back-end.
 > No Linux/macOS use `./mvnw` no lugar de `.\mvnw.cmd`.
@@ -66,7 +97,7 @@ app.cors.allowed-origins=http://localhost:3001
 
 (para mais de um endereço, separe por vírgula) e suba o back-end de novo. Para o front chamar um back-end em outro endereço, defina `REACT_APP_API_URL` antes do `npm start`.
 
-### 3. Usando a aplicação
+### Usando a aplicação
 
 A busca é **automática**: a lista se atualiza assim que você muda um filtro, sem botão de buscar. Os filtros vazios não restringem nada e podem ser combinados.
 
