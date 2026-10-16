@@ -33,6 +33,18 @@ public class Pais {
     @Column(name = "moeda")
     private String moeda;
 
+    /** Todos os idiomas do país, separados por vírgula (ex.: "Portuguese, English"). Usado na busca por idioma. */
+    @Column(name = "linguas", length = 1000)
+    private String linguas;
+
+    /** Códigos de todas as moedas do país, separados por vírgula (ex.: "BRL,USD"). Usado na busca por moeda. */
+    @Column(name = "moedas", length = 500)
+    private String moedas;
+
+    /** Número de habitantes (Banco Mundial, 2023). Fica nulo para os países sem dado publicado. */
+    @Column(name = "populacao")
+    private Long populacao;
+
     @Transient
     private Map<String, Object> name;
 
@@ -45,8 +57,11 @@ public class Pais {
     @Transient
     private String region;
 
+    @Transient
+    private Long population;
+
     public void processarDadosAPI() {
-        log.info("Iniciando processamento dos dados da API");
+        log.debug("Iniciando processamento dos dados do país");
 
         try {
             // Processa o nome
@@ -69,7 +84,8 @@ public class Pais {
             if (currencies != null && !currencies.isEmpty()) {
                 Map.Entry<String, Object> entry = currencies.entrySet().iterator().next();
                 this.moeda = entry.getKey();
-                log.debug("Moeda definida: {}", this.moeda);
+                this.moedas = String.join(",", currencies.keySet());
+                log.debug("Moeda definida: {} (todas: {})", this.moeda, this.moedas);
             } else {
                 log.warn("Moeda não encontrada para o país: {}", this.nome);
             }
@@ -77,10 +93,14 @@ public class Pais {
             // Processa o idioma
             if (languages != null && !languages.isEmpty()) {
                 this.lingua = languages.values().iterator().next();
-                log.debug("Língua definida: {}", this.lingua);
+                this.linguas = String.join(", ", languages.values());
+                log.debug("Língua definida: {} (todas: {})", this.lingua, this.linguas);
             } else {
                 log.warn("Língua não encontrada para o país: {}", this.nome);
             }
+
+            // Processa a população (pode não existir para alguns territórios)
+            this.populacao = this.population;
 
             // Define o clima
             this.clima = determinarClimaBasico(this.regiao);
@@ -90,7 +110,7 @@ public class Pais {
             log.error("Erro ao processar dados do país {}: {}", this.nome, e.getMessage());
         }
 
-        log.info("Processamento concluído para o país: {}", this.nome);
+        log.debug("Processamento concluído para o país: {}", this.nome);
     }
 
     private String determinarClimaBasico(String regiao) {
@@ -123,6 +143,9 @@ public class Pais {
                 ", lingua='" + lingua + '\'' +
                 ", clima='" + clima + '\'' +
                 ", moeda='" + moeda + '\'' +
+                ", linguas='" + linguas + '\'' +
+                ", moedas='" + moedas + '\'' +
+                ", populacao=" + populacao +
                 '}';
     }
 }

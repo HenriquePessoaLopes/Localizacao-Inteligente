@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Collections;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -34,8 +35,25 @@ public class PaisController {
         }
     }
 
+    /** Idiomas e moedas disponíveis para pesquisa (com o número de países de cada um). */
+    @GetMapping("/opcoes")
+    public ResponseEntity<?> listarOpcoes() {
+        try {
+            return ResponseEntity.ok(paisService.listarOpcoes());
+        } catch (Exception e) {
+            log.error("Erro ao listar as opções de busca", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping("/buscar")
-    public ResponseEntity<List<Pais>> buscarPaisesPorPreferencias(@RequestBody PreferenciasDTO preferencias) {
+    public ResponseEntity<?> buscarPaisesPorPreferencias(@RequestBody PreferenciasDTO preferencias) {
+        String erroDePopulacao = validarPopulacao(preferencias);
+        if (erroDePopulacao != null) {
+            log.warn("Busca recusada: {}", erroDePopulacao);
+            return ResponseEntity.badRequest().body(Map.of("mensagem", erroDePopulacao));
+        }
+
         try {
             log.info("Recebendo requisição de busca com preferências: {}", preferencias);
             List<Pais> paises = paisService.buscarPaisesPorPreferencias(preferencias);
@@ -51,5 +69,18 @@ public class PaisController {
             log.error("Erro ao buscar países", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    /** Devolve a mensagem de erro se os limites de população forem inválidos, ou null se estiver tudo certo. */
+    private String validarPopulacao(PreferenciasDTO preferencias) {
+        Long minima = preferencias.getPopulacaoMinima();
+        Long maxima = preferencias.getPopulacaoMaxima();
+        if ((minima != null && minima < 0) || (maxima != null && maxima < 0)) {
+            return "A população não pode ser negativa.";
+        }
+        if (minima != null && maxima != null && minima > maxima) {
+            return "A população mínima não pode ser maior que a máxima.";
+        }
+        return null;
     }
 }

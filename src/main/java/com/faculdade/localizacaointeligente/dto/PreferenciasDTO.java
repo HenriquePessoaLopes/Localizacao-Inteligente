@@ -8,4 +8,10 @@ public class PreferenciasDTO {
     private String lingua;
     private String clima;
     private String moeda;
+
+    /** Número mínimo de habitantes (inclusive). Vazio = sem limite. */
+    private Long populacaoMinima;
+
+    /** Número máximo de habitantes (inclusive). Vazio = sem limite. */
+    private Long populacaoMaxima;
 }
